@@ -123,4 +123,6 @@ JOptionPane.ERROR_MESSAGE);
  new DatabaseRecordsEditor();
  }
 }
-java -classpath ./my-sql-connector.jar;. classname
+D:\ajp>javac DatabaseRecordsEditor.java
+
+D:\ajp>java -classpath ./mysql-connector.jar;. DatabaseRecordsEditor
