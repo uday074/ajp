@@ -1,0 +1,126 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+public class DatabaseRecordsEditor extends JFrame implements ActionListener {
+ private JTextField idField, nameField, ageField;
+ private JButton insertButton, deleteButton, updateButton;
+ public DatabaseRecordsEditor() {
+ setTitle("Database Records Editor");
+ setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+ JPanel panel = new JPanel(new GridLayout(4, 2));
+ panel.add(new JLabel("ID:"));
+ idField = new JTextField();
+ panel.add(idField);
+ panel.add(new JLabel("Name:"));
+ nameField = new JTextField();
+ panel.add(nameField);
+ panel.add(new JLabel("Age:"));
+ ageField = new JTextField();
+ panel.add(ageField);
+ insertButton = new JButton("Insert");
+ insertButton.addActionListener(this);
+ panel.add(insertButton);
+ deleteButton = new JButton("Delete");
+ deleteButton.addActionListener(this);
+ panel.add(deleteButton);
+updateButton = new JButton("Update");
+ updateButton.addActionListener(this);
+ panel.add(updateButton);
+ add(panel, BorderLayout.CENTER);
+ pack();
+ setLocationRelativeTo(null);
+ setVisible(true);
+ }
+ @Override
+ public void actionPerformed(ActionEvent e) {
+ if (e.getSource() == insertButton) {
+ insertRecord();
+ } else if (e.getSource() == deleteButton) {
+ deleteRecord();
+ } else if (e.getSource() == updateButton) {
+ updateRecord();
+ }
+ }
+static {
+try{
+Class.forName("com.mysql.jdbc.Driver");} catch(Exception e){}
+}
+ private void insertRecord() {
+ String id = idField.getText();
+ String name = nameField.getText();
+ String age = ageField.getText();
+
+ try (Connection connection =
+DriverManager.getConnection("jdbc:mysql://localhost:3306/mysql", "root", "");
+ PreparedStatement preparedStatement =
+connection.prepareStatement("INSERT INTO t1 (id, name, age) VALUES (?, ?,
+?)")) {
+ preparedStatement.setString(1, id);
+ preparedStatement.setString(2, name);
+ preparedStatement.setString(3, age);
+ preparedStatement.executeUpdate();
+ JOptionPane.showMessageDialog(this, "Record inserted successfully.",
+"Success", JOptionPane.INFORMATION_MESSAGE);
+ } catch (SQLException e) {
+ JOptionPane.showMessageDialog(this, "Error inserting record.", "Error",
+JOptionPane.ERROR_MESSAGE);
+ e.printStackTrace();
+ }
+}
+ private void deleteRecord() {
+ String id = idField.getText();
+ try (Connection connection =
+DriverManager.getConnection("jdbc:mysql://localhost:3306/mysql", "root", "");
+ PreparedStatement preparedStatement =
+connection.prepareStatement("DELETE FROM t1 WHERE id = ?")) {
+ preparedStatement.setString(1, id);
+ int affectedRows = preparedStatement.executeUpdate();
+ if (affectedRows > 0) {
+ JOptionPane.showMessageDialog(this, "Record deleted successfully.",
+"Success", JOptionPane.INFORMATION_MESSAGE);
+ } else {
+ JOptionPane.showMessageDialog(this, "No record found with the specified
+ID.", "Error", JOptionPane.ERROR_MESSAGE);
+ }
+ } catch (SQLException e) {
+ JOptionPane.showMessageDialog(this, "Error deleting record.", "Error",
+JOptionPane.ERROR_MESSAGE);
+ e.printStackTrace();
+ }
+ }
+ private void updateRecord() {
+ String id = idField.getText();
+ String name = nameField.getText();
+ String age = ageField.getText();
+ try (Connection connection =
+DriverManager.getConnection("jdbc:mysql://localhost:3306/mysql", "root", "");
+ PreparedStatement preparedStatement =
+connection.prepareStatement("UPDATE t1 SET name = ?, age = ? WHERE id =
+?")) {
+ preparedStatement.setString(1, name);
+ preparedStatement.setString(2, age);
+ preparedStatement.setString(3, id);
+ int affectedRows = preparedStatement.executeUpdate();
+ if (affectedRows > 0) {
+ JOptionPane.showMessageDialog(this, "Record updated successfully.",
+"Success", JOptionPane.INFORMATION_MESSAGE);
+ } else {
+ JOptionPane.showMessageDialog(this, "No record found with the specified
+ID.", "Error", JOptionPane.ERROR_MESSAGE);
+}
+ } catch (SQLException e) {
+ JOptionPane.showMessageDialog(this, "Error updating record.", "Error",
+JOptionPane.ERROR_MESSAGE);
+ e.printStackTrace();
+ }
+ }
+ public static void main(String[] args) {
+ new DatabaseRecordsEditor();
+ }
+}
+java -classpath ./my-sql-connector.jar;. classname
